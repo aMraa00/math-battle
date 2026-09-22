@@ -1,0 +1,25 @@
+services:
+  - type: web
+    name: math-battle-api
+    runtime: node
+    plan: free
+    rootDir: .
+    buildCommand: npm install
+    startCommand: node server.js
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      # MongoDB Atlas холбоос (Render dashboard дээр setting хийж болно)
+      - key: MONGO_URI
+        sync: false
+      # Багшийн нууц үг
+      - key: TEACHER_PASSWORD
+        sync: false
+      # Vercel дээрх frontend URL (нэг ч эсвэл салангилсaan запятайгаар)
+      # жишээ: https://math-battle.vercel.app
+      - key: CORS_ORIGIN
+        sync: false
+      # QR join холбоос үүсгэхэд ашиглагдах frontend URL
+      - key: FRONTEND_URL
+        sync: false
