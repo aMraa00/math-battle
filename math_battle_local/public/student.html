@@ -1,639 +1,527 @@
 <!DOCTYPE html>
 <html lang="mn">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Math Battle — Сурагч</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800&display=swap" rel="stylesheet" />
-    <style>
-      body { font-family: "Nunito", sans-serif; background: #fff; color: #1e1b4b; }
-      .power-card {
-        background: #eef2ff; border: 2px solid #a78bfa; border-radius: 1rem;
-        transition: transform .15s ease, box-shadow .15s ease;
-        min-height: 88px;
-        -webkit-tap-highlight-color: transparent;
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Math Battle — Сурагч</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    body {
+      font-family: "Nunito", sans-serif;
+      background: #fff;
+      color: #1e1b4b;
+    }
+
+    .power-card {
+      background: #eef2ff;
+      border: 2px solid #a78bfa;
+      border-radius: 1rem;
+      transition: transform .15s ease, box-shadow .15s ease;
+      min-height: 88px;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .value-card {
+      background: #ecfdf5;
+      border: 2px solid #34d399;
+      border-radius: 1rem;
+      transition: transform .15s ease, box-shadow .15s ease;
+      min-height: 88px;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .power-card:not(:disabled):active,
+    .value-card:not(:disabled):active {
+      transform: scale(0.98);
+    }
+
+    .power-card.selected {
+      outline: 3px solid #7c3aed;
+      background: #ddd6fe;
+    }
+
+    .value-card.selected {
+      outline: 3px solid #059669;
+      background: #a7f3d0;
+    }
+
+    .card-correct {
+      background: #86efac !important;
+      border-color: #16a34a !important;
+      outline: none;
+      opacity: .85;
+    }
+
+    .card-wrong {
+      background: #fda4af !important;
+      border-color: #e11d48 !important;
+      animation: shake .35s ease;
+    }
+
+    .card-done {
+      pointer-events: none;
+      opacity: .55;
+    }
+
+    @keyframes shake {
+
+      0%,
+      100% {
+        transform: translateX(0);
       }
-      .value-card {
-        background: #ecfdf5; border: 2px solid #34d399; border-radius: 1rem;
-        transition: transform .15s ease, box-shadow .15s ease;
-        min-height: 88px;
-        -webkit-tap-highlight-color: transparent;
+
+      25% {
+        transform: translateX(-6px);
       }
-      .power-card:not(:disabled):active, .value-card:not(:disabled):active {
-        transform: scale(0.98);
+
+      75% {
+        transform: translateX(6px);
       }
-      .power-card.selected { outline: 3px solid #7c3aed; background: #ddd6fe; }
-      .value-card.selected { outline: 3px solid #059669; background: #a7f3d0; }
-      .card-correct { background: #86efac !important; border-color: #16a34a !important; outline: none; opacity: .85; }
-      .card-wrong { background: #fda4af !important; border-color: #e11d48 !important; animation: shake .35s ease; }
-      .card-done { pointer-events: none; opacity: .55; }
-      @keyframes shake {
-        0%,100% { transform: translateX(0); }
-        25% { transform: translateX(-6px); }
-        75% { transform: translateX(6px); }
+    }
+
+    @keyframes pop {
+      0% {
+        transform: scale(.96);
       }
-      @keyframes pop {
-        0% { transform: scale(.96); }
-        50% { transform: scale(1.04); }
-        100% { transform: scale(1); }
+
+      50% {
+        transform: scale(1.04);
       }
-      .pop { animation: pop .3s ease; }
-      #questionBox { white-space: normal; }
-      #questionBox sup { font-size: .65em; }
-      .timer-bar { transition: width .2s linear; }
-      .blank-box {
-        display: inline-flex; align-items: center; justify-content: center;
-        min-width: 2.4rem; padding: 0.15rem 0.55rem; margin: 0 0.15rem;
-        border: 3px dashed #f59e0b; border-radius: 0.6rem;
-        background: #fffbeb; color: #b45309; font-weight: 800;
+
+      100% {
+        transform: scale(1);
       }
-      .fill-q { display: flex; flex-direction: column; align-items: center; gap: 0.75rem; width: 100%; }
-      .fill-label {
-        align-self: flex-start; background: #7c3aed; color: #fff;
-        font-size: 0.95rem; padding: 0.25rem 0.75rem; border-radius: 999px;
+    }
+
+    .pop {
+      animation: pop .3s ease;
+    }
+
+    #questionBox {
+      white-space: normal;
+    }
+
+    #questionBox sup {
+      font-size: .65em;
+    }
+
+    .timer-bar {
+      transition: width .2s linear;
+    }
+
+    .blank-box {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 2.4rem;
+      padding: 0.15rem 0.55rem;
+      margin: 0 0.15rem;
+      border: 3px dashed #f59e0b;
+      border-radius: 0.6rem;
+      background: #fffbeb;
+      color: #b45309;
+      font-weight: 800;
+    }
+
+    .fill-q {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.75rem;
+      width: 100%;
+    }
+
+    .fill-label {
+      align-self: flex-start;
+      background: #7c3aed;
+      color: #fff;
+      font-size: 0.95rem;
+      padding: 0.25rem 0.75rem;
+      border-radius: 999px;
+    }
+
+    .fill-eq {
+      font-size: clamp(1.35rem, 6.5vw, 2.1rem);
+      line-height: 1.45;
+      letter-spacing: 0.02em;
+      word-break: break-word;
+    }
+
+    .choice-btn {
+      min-height: 64px;
+      font-size: 1.25rem;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    @media (max-width: 640px) {
+      .match-title {
+        font-size: 1.25rem !important;
       }
-      .fill-eq {
-        font-size: clamp(1.35rem, 6.5vw, 2.1rem); line-height: 1.45;
-        letter-spacing: 0.02em; word-break: break-word;
-      }
-      .choice-btn {
-        min-height: 64px; font-size: 1.25rem;
-        -webkit-tap-highlight-color: transparent;
-      }
-      @media (max-width: 640px) {
-        .match-title { font-size: 1.25rem !important; }
-      }
-    </style>
-  </head>
-  <body class="min-h-screen pb-8">
-    <div class="max-w-5xl mx-auto p-3 sm:p-4 md:p-6">
-      <div class="flex items-start justify-between gap-3 mb-3">
-        <div class="min-w-0">
-          <p class="text-violet-700 font-extrabold text-xs tracking-widest">MATH BATTLE</p>
-          <h1 id="studentTitle" class="text-xl sm:text-2xl font-extrabold truncate">Сайн байна уу!</h1>
-        </div>
-        <div id="classBadge" class="shrink-0 bg-violet-100 text-violet-800 px-3 py-2 rounded-2xl font-extrabold text-sm">КОД</div>
+    }
+  </style>
+</head>
+
+<body class="min-h-screen pb-8">
+  <div class="max-w-5xl mx-auto p-3 sm:p-4 md:p-6">
+    <div class="flex items-start justify-between gap-3 mb-3">
+      <div class="min-w-0">
+        <p class="text-violet-700 font-extrabold text-xs tracking-widest">MATH BATTLE</p>
+        <h1 id="studentTitle" class="text-xl sm:text-2xl font-extrabold truncate">Сайн байна уу!</h1>
       </div>
+      <div id="classBadge" class="shrink-0 bg-violet-100 text-violet-800 px-3 py-2 rounded-2xl font-extrabold text-sm">
+        КОД</div>
+    </div>
 
-      <!-- Lobby -->
-      <div id="lobbyView" class="text-center py-12 sm:py-16 border border-violet-100 rounded-3xl px-3">
-        <div class="text-5xl mb-4 animate-pulse">⏳</div>
-        <h2 class="text-xl font-extrabold mb-2">Лоббид хүлээж байна</h2>
-        <p id="lobbyMsg" class="text-slate-600 text-sm sm:text-base">Багш тоглоом эхлүүлэхийг хүлээж байна...</p>
+    <!-- Lobby -->
+    <div id="lobbyView" class="text-center py-12 sm:py-16 border border-violet-100 rounded-3xl px-3">
+      <div class="text-5xl mb-4 animate-pulse">⏳</div>
+      <h2 class="text-xl font-extrabold mb-2">Лоббид хүлээж байна</h2>
+      <p id="lobbyMsg" class="text-slate-600 text-sm sm:text-base">Багш тоглоом эхлүүлэхийг хүлээж байна...</p>
+    </div>
+
+    <!-- Stage 1 Match -->
+    <div id="matchView" class="hidden">
+      <div class="flex flex-wrap items-start justify-between gap-3 mb-3">
+        <div>
+          <h2 class="match-title text-xl sm:text-2xl font-extrabold">🧩 Зэрэг ба утгыг тааруул</h2>
+          <p class="text-slate-600 text-sm mt-1">Зэргийн картыг сонгоод, дараа нь утгыг сонго.</p>
+          <p class="text-violet-700 text-sm font-bold mt-1">Үе 1 · Зэрэг ↔ Утга</p>
+          <p id="matchScore" class="mt-1 text-lg font-extrabold text-violet-700">ОНОО: 0</p>
+        </div>
+        <button id="helpBtn" type="button"
+          class="bg-amber-400 hover:bg-amber-500 text-amber-950 font-extrabold px-4 py-2.5 rounded-xl shadow-sm min-h-[44px]">
+          💡 Тусламж
+        </button>
       </div>
-
-      <!-- Stage 1 Match -->
-      <div id="matchView" class="hidden">
-        <div class="flex flex-wrap items-start justify-between gap-3 mb-3">
-          <div>
-            <h2 class="match-title text-xl sm:text-2xl font-extrabold">🧩 Зэрэг ба утгыг тааруул</h2>
-            <p class="text-slate-600 text-sm mt-1">Зэргийн картыг сонгоод, дараа нь утгыг сонго.</p>
-            <p class="text-violet-700 text-sm font-bold mt-1">Үе 1 · Зэрэг ↔ Утга</p>
-            <p id="matchScore" class="mt-1 text-lg font-extrabold text-violet-700">ОНОО: 0</p>
-          </div>
-          <button id="helpBtn" type="button" class="bg-amber-400 hover:bg-amber-500 text-amber-950 font-extrabold px-4 py-2.5 rounded-xl shadow-sm min-h-[44px]">
-            💡 Тусламж
-          </button>
-        </div>
-        <div id="helpBox" class="hidden mb-4 rounded-2xl bg-amber-50 border border-amber-200 p-3 text-sm font-bold text-amber-900">
-          10ⁿ гэдэг нь 10-ыг n зэрэгт дэвшүүлсэн гэсэн үг. Жишээ нь 10³ = 1,000.
-        </div>
-        <div id="matchFeedback" class="mb-3 min-h-[28px] text-center font-extrabold text-lg"></div>
-
-        <h3 class="font-extrabold text-base sm:text-lg mb-2">1 Зэргийн карт</h3>
-        <div id="powerGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2 sm:gap-3 mb-5"></div>
-
-        <h3 class="font-extrabold text-base sm:text-lg mb-2">2 Утгын карт</h3>
-        <div id="valueGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2 sm:gap-3"></div>
-
-        <div id="matchDone" class="hidden mt-6 text-center py-8 rounded-3xl bg-emerald-50 border border-emerald-200 px-3">
-          <p class="text-2xl sm:text-3xl font-extrabold text-emerald-700">Баяр хүргэе! 🎉</p>
-          <p id="matchScoreLine" class="mt-2 font-bold text-emerald-800"></p>
-          <button id="matchContinueBtn" type="button" class="mt-4 bg-violet-600 hover:bg-violet-700 text-white font-extrabold px-5 py-3 rounded-2xl min-h-[48px] w-full sm:w-auto">
-            Дараагийн үе шат →
-          </button>
-        </div>
+      <div id="helpBox"
+        class="hidden mb-4 rounded-2xl bg-amber-50 border border-amber-200 p-3 text-sm font-bold text-amber-900">
+        10ⁿ гэдэг нь 10-ыг n зэрэгт дэвшүүлсэн гэсэн үг. Жишээ нь 10³ = 1,000.
       </div>
+      <div id="matchFeedback" class="mb-3 min-h-[28px] text-center font-extrabold text-lg"></div>
 
-      <!-- Stages 2–3 Quiz -->
-      <div id="quizView" class="hidden">
-        <div class="flex items-center justify-between gap-2 mb-2">
-          <div class="min-w-0">
-            <div id="stageHeader" class="text-base sm:text-lg font-extrabold text-violet-800 truncate">Үе 2</div>
-            <div id="stageSub" class="text-xs sm:text-sm text-slate-500 font-bold"></div>
-          </div>
-          <div class="text-right shrink-0">
-            <div id="progress" class="text-sm font-bold text-slate-500">1 / 5</div>
-            <div id="timerLabel" class="text-2xl font-extrabold text-amber-600">10</div>
-          </div>
-        </div>
-        <div class="h-2 bg-slate-100 rounded-full overflow-hidden mb-3">
-          <div id="timerBar" class="timer-bar h-full bg-amber-400 w-full"></div>
-        </div>
-        <p id="quizInstruction" class="hidden text-center text-sm font-bold text-amber-800 bg-amber-50 border border-amber-100 rounded-2xl px-3 py-2 mb-3"></p>
-        <div id="questionBox" class="bg-violet-50 border border-violet-100 rounded-3xl p-4 sm:p-6 text-3xl sm:text-4xl font-extrabold text-center min-h-[140px] flex items-center justify-center"></div>
-        <div id="choices" class="mt-4 grid grid-cols-2 gap-3"></div>
-        <div id="status" class="mt-4 text-base font-bold min-h-[28px] text-center px-1"></div>
-      </div>
+      <h3 class="font-extrabold text-base sm:text-lg mb-2">1 Зэргийн карт</h3>
+      <div id="powerGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2 sm:gap-3 mb-5"></div>
 
-      <!-- Done -->
-      <div id="doneView" class="hidden text-center py-12 border border-emerald-100 rounded-3xl bg-emerald-50 px-3">
-        <div class="text-5xl mb-3">🏆</div>
-        <h2 class="text-xl sm:text-2xl font-extrabold mb-2">Бүх үе шат дууслаа!</h2>
-        <p class="text-slate-600 text-lg font-bold">Баяр хүргэе!</p>
-        <p id="scoreLine" class="mt-4 text-violet-700 font-extrabold text-lg sm:text-xl"></p>
+      <h3 class="font-extrabold text-base sm:text-lg mb-2">2 Утгын карт</h3>
+      <div id="valueGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2 sm:gap-3"></div>
+
+      <div id="matchDone" class="hidden mt-6 text-center py-8 rounded-3xl bg-emerald-50 border border-emerald-200 px-3">
+        <p class="text-2xl sm:text-3xl font-extrabold text-emerald-700">Баяр хүргэе! 🎉</p>
+        <p id="matchScoreLine" class="mt-2 font-bold text-emerald-800"></p>
+        <button id="matchContinueBtn" type="button"
+          class="mt-4 bg-violet-600 hover:bg-violet-700 text-white font-extrabold px-5 py-3 rounded-2xl min-h-[48px] w-full sm:w-auto">
+          Дараагийн үе шат →
+        </button>
       </div>
     </div>
 
-    <script>
-      const params = new URLSearchParams(window.location.search);
-      const classCode = (params.get("code") || "").toUpperCase();
-      const studentName = (params.get("name") || "").trim();
+    <!-- Stages 2–3 Quiz -->
+    <div id="quizView" class="hidden">
+      <div class="flex items-center justify-between gap-2 mb-2">
+        <div class="min-w-0">
+          <div id="stageHeader" class="text-base sm:text-lg font-extrabold text-violet-800 truncate">Үе 2</div>
+          <div id="stageSub" class="text-xs sm:text-sm text-slate-500 font-bold"></div>
+        </div>
+        <div class="text-right shrink-0">
+          <div id="progress" class="text-sm font-bold text-slate-500">1 / 5</div>
+          <div id="timerLabel" class="text-2xl font-extrabold text-amber-600">10</div>
+        </div>
+      </div>
+      <div class="h-2 bg-slate-100 rounded-full overflow-hidden mb-3">
+        <div id="timerBar" class="timer-bar h-full bg-amber-400 w-full"></div>
+      </div>
+      <p id="quizInstruction"
+        class="hidden text-center text-sm font-bold text-amber-800 bg-amber-50 border border-amber-100 rounded-2xl px-3 py-2 mb-3">
+      </p>
+      <div id="questionBox"
+        class="bg-violet-50 border border-violet-100 rounded-3xl p-4 sm:p-6 text-3xl sm:text-4xl font-extrabold text-center min-h-[140px] flex items-center justify-center">
+      </div>
+      <div id="choices" class="mt-4 grid grid-cols-2 gap-3"></div>
+      <div id="status" class="mt-4 text-base font-bold min-h-[28px] text-center px-1"></div>
+    </div>
 
-      const els = {
-        classBadge: document.getElementById("classBadge"),
-        studentTitle: document.getElementById("studentTitle"),
-        lobbyView: document.getElementById("lobbyView"),
-        lobbyMsg: document.getElementById("lobbyMsg"),
-        matchView: document.getElementById("matchView"),
-        quizView: document.getElementById("quizView"),
-        doneView: document.getElementById("doneView"),
-        powerGrid: document.getElementById("powerGrid"),
-        valueGrid: document.getElementById("valueGrid"),
-        matchFeedback: document.getElementById("matchFeedback"),
-        matchScore: document.getElementById("matchScore"),
-        matchDone: document.getElementById("matchDone"),
-        matchScoreLine: document.getElementById("matchScoreLine"),
-        helpBtn: document.getElementById("helpBtn"),
-        helpBox: document.getElementById("helpBox"),
-        matchContinueBtn: document.getElementById("matchContinueBtn"),
-        stageHeader: document.getElementById("stageHeader"),
-        stageSub: document.getElementById("stageSub"),
-        progress: document.getElementById("progress"),
-        timerLabel: document.getElementById("timerLabel"),
-        timerBar: document.getElementById("timerBar"),
-        questionBox: document.getElementById("questionBox"),
-        choices: document.getElementById("choices"),
-        status: document.getElementById("status"),
-        scoreLine: document.getElementById("scoreLine"),
-        quizInstruction: document.getElementById("quizInstruction"),
-      };
+    <!-- Done -->
+    <div id="doneView" class="hidden text-center py-12 border border-emerald-100 rounded-3xl bg-emerald-50 px-3">
+      <div class="text-5xl mb-3">🏆</div>
+      <h2 class="text-xl sm:text-2xl font-extrabold mb-2">Бүх үе шат дууслаа!</h2>
+      <p class="text-slate-600 text-lg font-bold">Баяр хүргэе!</p>
+      <p id="scoreLine" class="mt-4 text-violet-700 font-extrabold text-lg sm:text-xl"></p>
+    </div>
+  </div>
 
-      let gameStarted = false;
-      let gameStopped = false;
-      let stage = 1;
-      let totalScore = 0;
-      let stageScores = { 1: 0, 2: 0, 3: 0 };
-      let quizInstruction = "";
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const classCode = (params.get("code") || "").toUpperCase();
+    const studentName = (params.get("name") || "").trim();
 
-      // match state
-      let matchData = null;
-      let selectedPower = null;
-      let matchedIds = new Set();
-      let matchAnswers = [];
-      let lockMatch = false;
-      let matchWrong = 0;
-      let matchCorrect = 0;
+    const els = {
+      classBadge: document.getElementById("classBadge"),
+      studentTitle: document.getElementById("studentTitle"),
+      lobbyView: document.getElementById("lobbyView"),
+      lobbyMsg: document.getElementById("lobbyMsg"),
+      matchView: document.getElementById("matchView"),
+      quizView: document.getElementById("quizView"),
+      doneView: document.getElementById("doneView"),
+      powerGrid: document.getElementById("powerGrid"),
+      valueGrid: document.getElementById("valueGrid"),
+      matchFeedback: document.getElementById("matchFeedback"),
+      matchScore: document.getElementById("matchScore"),
+      matchDone: document.getElementById("matchDone"),
+      matchScoreLine: document.getElementById("matchScoreLine"),
+      helpBtn: document.getElementById("helpBtn"),
+      helpBox: document.getElementById("helpBox"),
+      matchContinueBtn: document.getElementById("matchContinueBtn"),
+      stageHeader: document.getElementById("stageHeader"),
+      stageSub: document.getElementById("stageSub"),
+      progress: document.getElementById("progress"),
+      timerLabel: document.getElementById("timerLabel"),
+      timerBar: document.getElementById("timerBar"),
+      questionBox: document.getElementById("questionBox"),
+      choices: document.getElementById("choices"),
+      status: document.getElementById("status"),
+      scoreLine: document.getElementById("scoreLine"),
+      quizInstruction: document.getElementById("quizInstruction"),
+    };
 
-      // quiz state
-      let questions = [];
-      let currentIndex = 0;
-      let selected = false;
-      let stageAnswers = [];
-      let timerSec = 10;
-      let timerLeft = 10;
-      let timerId = null;
+    let gameStarted = false;
+    let gameStopped = false;
+    let stage = 1;
+    let totalScore = 0;
+    let stageScores = { 1: 0, 2: 0, 3: 0 };
+    let quizInstruction = "";
 
-      /* ---------- Хадгалалт: reload хийхэд үргэлжлүүлнэ ---------- */
-      const SAVE_KEY = classCode && studentName ? `mb_progress_${classCode}_${studentName}` : "";
-      const submittedStages = new Set();
+    // match state
+    let matchData = null;
+    let selectedPower = null;
+    let matchedIds = new Set();
+    let matchAnswers = [];
+    let lockMatch = false;
+    let matchWrong = 0;
+    let matchCorrect = 0;
 
-      function readProgress() {
-        if (!SAVE_KEY) return null;
-        try {
-          return JSON.parse(localStorage.getItem(SAVE_KEY) || "null");
-        } catch {
-          return null;
-        }
+    // quiz state
+    let questions = [];
+    let currentIndex = 0;
+    let selected = false;
+    let stageAnswers = [];
+    let timerSec = 10;
+    let timerLeft = 10;
+    let timerId = null;
+
+    /* ---------- Хадгалалт: reload хийхэд үргэлжлүүлнэ ---------- */
+    const SAVE_KEY = classCode && studentName ? `mb_progress_${classCode}_${studentName}` : "";
+    const submittedStages = new Set();
+
+    function readProgress() {
+      if (!SAVE_KEY) return null;
+      try {
+        return JSON.parse(localStorage.getItem(SAVE_KEY) || "null");
+      } catch {
+        return null;
       }
+    }
 
-      function clearProgress() {
-        if (!SAVE_KEY) return;
-        try {
-          localStorage.removeItem(SAVE_KEY);
-        } catch (_) {}
-      }
+    function clearProgress() {
+      if (!SAVE_KEY) return;
+      try {
+        localStorage.removeItem(SAVE_KEY);
+      } catch (_) { }
+    }
 
-      function saveProgress() {
-        if (!SAVE_KEY || !gameStarted) return;
-        const state = {
-          stage,
-          stageScores,
-          totalScore,
-          savedAt: Date.now(),
-          match: stage === 1
+    function saveProgress() {
+      if (!SAVE_KEY || !gameStarted) return;
+      const state = {
+        stage,
+        stageScores,
+        totalScore,
+        savedAt: Date.now(),
+        match: stage === 1
+          ? {
+            data: matchData,
+            matchedIds: [...matchedIds],
+            answers: matchAnswers,
+            correct: matchCorrect,
+            wrong: matchWrong,
+          }
+          : null,
+        quiz:
+          stage >= 2
             ? {
-                data: matchData,
-                matchedIds: [...matchedIds],
-                answers: matchAnswers,
-                correct: matchCorrect,
-                wrong: matchWrong,
-              }
-            : null,
-          quiz:
-            stage >= 2
-              ? {
-                  questions,
-                  currentIndex,
-                  answers: stageAnswers,
-                  timerSec,
-                  instruction: quizInstruction,
-                  header: els.stageHeader.textContent,
-                  sub: els.stageSub.textContent,
-                }
-              : null,
-        };
-        try {
-          localStorage.setItem(SAVE_KEY, JSON.stringify(state));
-          console.log("[MB] SAVE", { stage, matched: matchedIds.size, wrong: matchWrong, idx: currentIndex });
-        } catch (_) {}
-      }
-
-      function updateMatchScore() {
-        els.matchScore.textContent = `ОНОО: ${matchLiveScore()}`;
-      }
-
-      els.classBadge.textContent = classCode || "КОД";
-      els.studentTitle.textContent = studentName ? `Сайн уу, ${studentName}!` : "Сайн байна уу!";
-
-      function hideAll() {
-        els.lobbyView.classList.add("hidden");
-        els.matchView.classList.add("hidden");
-        els.quizView.classList.add("hidden");
-        els.doneView.classList.add("hidden");
-      }
-
-      function setStatus(text, kind) {
-        els.status.textContent = text;
-        els.status.className =
-          "mt-5 text-base font-bold min-h-[28px] text-center " +
-          (kind === "ok" ? "text-emerald-600" : kind === "bad" ? "text-rose-600" : "text-slate-600");
-      }
-
-      async function pushLiveScore(stageNum, score) {
-        if (!classCode || !studentName) return;
-        try {
-          await fetch("/api/student/progress", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ code: classCode, name: studentName, stage: stageNum, score }),
-          });
-        } catch (_) {}
-      }
-
-      function matchLiveScore() {
-        return Math.max(0, matchCorrect - matchWrong);
-      }
-
-      async function checkGameState() {
-        if (!classCode) return;
-        if (!els.doneView.classList.contains("hidden")) return;
-        try {
-          const statusRes = await fetch(
-            `/api/student/status?code=${encodeURIComponent(classCode)}&name=${encodeURIComponent(studentName)}`
-          );
-          const status = await statusRes.json();
-          if (statusRes.ok && status.finished) {
-            gameStarted = true;
-            stageScores[1] = status.scores?.stage1 || 0;
-            stageScores[2] = status.scores?.stage2 || 0;
-            stageScores[3] = status.scores?.stage3 || 0;
-            totalScore = status.scores?.total || 0;
-            hideAll();
-            els.doneView.classList.remove("hidden");
-            els.scoreLine.innerHTML =
-              `Та аль хэдийн шалгалт өгсөн.<br/>Нийт оноо: ${totalScore} (Ү1: ${stageScores[1]}, Ү2: ${stageScores[2]}, Ү3: ${stageScores[3]})`;
-            return;
-          }
-
-          const res = await fetch(`/api/class/${classCode}`);
-          const data = await res.json();
-          if (!res.ok) {
-            els.lobbyMsg.textContent = data.message || "Анги олдсонгүй.";
-            return;
-          }
-
-          // Teacher stopped the game mid-play
-          if (gameStarted && !data.gameStarted && data.status === "stopped" && !status.finished) {
-            gameStopped = true;
-            gameStarted = false;
-            clearTimer();
-            hideAll();
-            els.lobbyView.classList.remove("hidden");
-            els.lobbyMsg.textContent = "Багш тоглоомыг зогсоолоо. Дахин эхэлвэл үргэлжлүүлнэ.";
-            return;
-          }
-
-          if (gameStarted) return;
-
-          if (!data.gameStarted) {
-            els.lobbyMsg.textContent =
-              data.status === "stopped"
-                ? "Тоглоом зогссон. Багш дахин эхлүүлэхийг хүлээнэ үү."
-                : "Багш тоглоом эхлүүлэхийг хүлээж байна...";
-            return;
-          }
-
-          gameStarted = true;
-          gameStopped = false;
-          els.lobbyMsg.textContent = "Багш тоглоом эхлүүллээ. Эхний үе шат эхэлж байна.";
-
-          let startAt = 1;
-          if (status.stagesDone?.stage1) startAt = 2;
-          if (status.stagesDone?.stage2) startAt = 3;
-          if (status.stagesDone?.stage3) {
-            clearProgress();
-            showFinal();
-            return;
-          }
-          if (status.scores) {
-            stageScores[1] = status.scores.stage1 || 0;
-            stageScores[2] = status.scores.stage2 || 0;
-            stageScores[3] = status.scores.stage3 || 0;
-            totalScore = status.scores.total || 0;
-          }
-          /* Reload / хуудас гарсан бол өмнөх явцаас үргэлжлүүлнэ */
-          const saved = readProgress();
-          if (saved && saved.stage) {
-            await resumeProgress(saved);
-            return;
-          }
-
-          await startStage(startAt);
-        } catch {
-          els.lobbyMsg.textContent = "Сервертэй холболт алдаатай байна.";
-        }
-      }
-
-      /* Шинээр эхлэх үедээ хуучин хадгалалтыг цэвэрлэнэ */
-      async function resumeProgress(saved) {
-        console.log("[MB] RESUME", saved.stage, saved.match ? "match" : saved.quiz ? "quiz" : "?");
-        stage = saved.stage || 1;
-        stageScores = saved.stageScores || stageScores;
-        totalScore = saved.totalScore || totalScore;
-
-        /* Үе 1: тааруулалтыг үргэлжлүүлнэ */
-        if (stage === 1 && saved.match && saved.match.data) {
-          matchData = saved.match.data;
-          matchedIds = new Set(saved.match.matchedIds || []);
-          matchAnswers = saved.match.answers || [];
-          matchCorrect = saved.match.correct || 0;
-          matchWrong = saved.match.wrong || 0;
-          selectedPower = null;
-          lockMatch = false;
-          hideAll();
-          els.matchView.classList.remove("hidden");
-          els.matchDone.classList.add("hidden");
-          els.matchFeedback.textContent = "Хуучин тоглолтоо үргэлжлүүлнэ үү.";
-          els.matchFeedback.className =
-            "mb-3 min-h-[28px] text-center font-extrabold text-lg text-violet-700";
-          updateMatchScore();
-          renderMatch();
-          if (matchedIds.size >= 10) await finishMatch();
-          return;
-        }
-
-        /* Үе 2–3: асуултаа үргэлжлүүлнэ */
-        if (stage >= 2 && saved.quiz && (saved.quiz.questions || []).length) {
-          questions = saved.quiz.questions;
-          currentIndex = Math.min(saved.quiz.currentIndex || 0, Math.max(0, questions.length - 1));
-          stageAnswers = saved.quiz.answers || [];
-          timerSec = saved.quiz.timerSec || 10;
-          quizInstruction = saved.quiz.instruction || "";
-          hideAll();
-          els.quizView.classList.remove("hidden");
-          els.stageHeader.textContent = saved.quiz.header || `Үе ${stage}`;
-          els.stageSub.textContent = saved.quiz.sub || "";
-          if (quizInstruction) {
-            els.quizInstruction.textContent = quizInstruction;
-            els.quizInstruction.classList.remove("hidden");
-          } else {
-            els.quizInstruction.classList.add("hidden");
-          }
-          renderQuizQuestion();
-          return;
-        }
-
-        await startStage(stage);
-      }
-
-      /* Хариултыг серверт илгээнэ (409 = аль хэдийн илгээсэн) */
-      async function submitStage(stageNum, answers) {
-        clearTimer();
-        if (submittedStages.has(stageNum)) return true;
-        if (!classCode || !studentName) return false;
-        try {
-          const res = await fetch("/api/student/submit", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ code: classCode, name: studentName, stage: stageNum, answers }),
-          });
-          const data = await res.json().catch(() => ({}));
-
-          if (res.ok || res.status === 409) {
-            submittedStages.add(stageNum);
-            if (data.scores) {
-              stageScores[1] = data.scores.stage1 || 0;
-              stageScores[2] = data.scores.stage2 || 0;
-              stageScores[3] = data.scores.stage3 || 0;
-              totalScore = data.scores.total || 0;
+              questions,
+              currentIndex,
+              answers: stageAnswers,
+              timerSec,
+              instruction: quizInstruction,
+              header: els.stageHeader.textContent,
+              sub: els.stageSub.textContent,
             }
-            clearProgress();
-            return true;
-          }
-          return false;
-        } catch (_) {
-          return false;
-        }
-      }
+            : null,
+      };
+      try {
+        localStorage.setItem(SAVE_KEY, JSON.stringify(state));
+        console.log("[MB] SAVE", { stage, matched: matchedIds.size, wrong: matchWrong, idx: currentIndex });
+      } catch (_) { }
+    }
 
-      async function startStage(n) {
-        console.log("[MB] START", n);
-        stage = n;
-        clearProgress();
-        hideAll();
-        if (n === 1) {
-          els.matchView.classList.remove("hidden");
-          await loadMatch();
-        } else if (n <= 3) {
-          els.quizView.classList.remove("hidden");
-          await loadQuiz(n);
-        } else {
+    function updateMatchScore() {
+      els.matchScore.textContent = `ОНОО: ${matchLiveScore()}`;
+    }
+
+    els.classBadge.textContent = classCode || "КОД";
+    els.studentTitle.textContent = studentName ? `Сайн уу, ${studentName}!` : "Сайн байна уу!";
+
+    function hideAll() {
+      els.lobbyView.classList.add("hidden");
+      els.matchView.classList.add("hidden");
+      els.quizView.classList.add("hidden");
+      els.doneView.classList.add("hidden");
+    }
+
+    function setStatus(text, kind) {
+      els.status.textContent = text;
+      els.status.className =
+        "mt-5 text-base font-bold min-h-[28px] text-center " +
+        (kind === "ok" ? "text-emerald-600" : kind === "bad" ? "text-rose-600" : "text-slate-600");
+    }
+
+    async function pushLiveScore(stageNum, score) {
+      if (!classCode || !studentName) return;
+      try {
+        await fetch("/api/student/progress", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ code: classCode, name: studentName, stage: stageNum, score }),
+        });
+      } catch (_) { }
+    }
+
+    function matchLiveScore() {
+      return Math.max(0, matchCorrect - matchWrong);
+    }
+
+    async function checkGameState() {
+      if (!classCode) return;
+      if (!els.doneView.classList.contains("hidden")) return;
+      try {
+        const statusRes = await fetch(
+          `/api/student/status?code=${encodeURIComponent(classCode)}&name=${encodeURIComponent(studentName)}`
+        );
+        const status = await statusRes.json();
+        if (statusRes.ok && status.finished) {
+          gameStarted = true;
+          stageScores[1] = status.scores?.stage1 || 0;
+          stageScores[2] = status.scores?.stage2 || 0;
+          stageScores[3] = status.scores?.stage3 || 0;
+          totalScore = status.scores?.total || 0;
+          hideAll();
+          els.doneView.classList.remove("hidden");
+          els.scoreLine.innerHTML =
+            `Та аль хэдийн шалгалт өгсөн.<br/>Нийт оноо: ${totalScore} (Ү1: ${stageScores[1]}, Ү2: ${stageScores[2]}, Ү3: ${stageScores[3]})`;
+          return;
+        }
+
+        const res = await fetch(`/api/class/${classCode}`);
+        const data = await res.json();
+        if (!res.ok) {
+          els.lobbyMsg.textContent = data.message || "Анги олдсонгүй.";
+          return;
+        }
+
+        // Teacher stopped the game mid-play
+        if (gameStarted && !data.gameStarted && data.status === "stopped" && !status.finished) {
+          gameStopped = true;
+          gameStarted = false;
+          clearTimer();
+          hideAll();
+          els.lobbyView.classList.remove("hidden");
+          els.lobbyMsg.textContent = "Багш тоглоомыг зогсоолоо. Дахин эхэлвэл үргэлжлүүлнэ.";
+          return;
+        }
+
+        if (gameStarted) return;
+
+        if (!data.gameStarted) {
+          els.lobbyMsg.textContent =
+            data.status === "stopped"
+              ? "Тоглоом зогссон. Багш дахин эхлүүлэхийг хүлээнэ үү."
+              : "Багш тоглоом эхлүүлэхийг хүлээж байна...";
+          return;
+        }
+
+        gameStarted = true;
+        gameStopped = false;
+        els.lobbyMsg.textContent = "Багш тоглоом эхлүүллээ. Эхний үе шат эхэлж байна.";
+
+        let startAt = 1;
+        if (status.stagesDone?.stage1) startAt = 2;
+        if (status.stagesDone?.stage2) startAt = 3;
+        if (status.stagesDone?.stage3) {
+          clearProgress();
           showFinal();
+          return;
         }
-      }
+        if (status.scores) {
+          stageScores[1] = status.scores.stage1 || 0;
+          stageScores[2] = status.scores.stage2 || 0;
+          stageScores[3] = status.scores.stage3 || 0;
+          totalScore = status.scores.total || 0;
+        }
+        /* Reload / хуудас гарсан бол өмнөх явцаас үргэлжлүүлнэ */
+        const saved = readProgress();
+        if (saved && saved.stage) {
+          await resumeProgress(saved);
+          return;
+        }
 
-      /* ---------- Stage 1: Match ---------- */
-      async function loadMatch() {
-        const res = await fetch("/api/questions/1");
-        const data = await res.json();
-        matchData = data.match;
+        await startStage(startAt);
+      } catch {
+        els.lobbyMsg.textContent = "Сервертэй холболт алдаатай байна.";
+      }
+    }
+
+    /* Шинээр эхлэх үедээ хуучин хадгалалтыг цэвэрлэнэ */
+    async function resumeProgress(saved) {
+      console.log("[MB] RESUME", saved.stage, saved.match ? "match" : saved.quiz ? "quiz" : "?");
+      stage = saved.stage || 1;
+      stageScores = saved.stageScores || stageScores;
+      totalScore = saved.totalScore || totalScore;
+
+      /* Үе 1: тааруулалтыг үргэлжлүүлнэ */
+      if (stage === 1 && saved.match && saved.match.data) {
+        matchData = saved.match.data;
+        matchedIds = new Set(saved.match.matchedIds || []);
+        matchAnswers = saved.match.answers || [];
+        matchCorrect = saved.match.correct || 0;
+        matchWrong = saved.match.wrong || 0;
         selectedPower = null;
-        matchedIds = new Set();
-        matchAnswers = [];
         lockMatch = false;
-        matchCorrect = 0;
-        matchWrong = 0;
-        updateMatchScore();
+        hideAll();
+        els.matchView.classList.remove("hidden");
         els.matchDone.classList.add("hidden");
-        els.matchFeedback.textContent = "";
+        els.matchFeedback.textContent = "Хуучин тоглолтоо үргэлжлүүлнэ үү.";
+        els.matchFeedback.className =
+          "mb-3 min-h-[28px] text-center font-extrabold text-lg text-violet-700";
+        updateMatchScore();
         renderMatch();
+        if (matchedIds.size >= 10) await finishMatch();
+        return;
       }
 
-      function renderMatch() {
-        els.powerGrid.innerHTML = "";
-        els.valueGrid.innerHTML = "";
-
-        matchData.exponents.forEach((p) => {
-          const btn = document.createElement("button");
-          btn.type = "button";
-          btn.className = "power-card p-4 text-center min-h-[96px]";
-          btn.dataset.id = p.id;
-          btn.innerHTML = `<div class="text-2xl md:text-3xl font-extrabold text-violet-800">${p.powerHtml}</div><div class="text-xs text-violet-500 mt-2 font-bold">зэргийг сонго</div>`;
-          if (matchedIds.has(p.id)) {
-            btn.classList.add("card-correct", "card-done");
-            btn.disabled = true;
-          }
-          btn.addEventListener("click", () => onSelectPower(p, btn));
-          els.powerGrid.appendChild(btn);
-        });
-
-        matchData.values.forEach((v) => {
-          const btn = document.createElement("button");
-          btn.type = "button";
-          btn.className = "value-card p-4 text-center min-h-[96px]";
-          btn.dataset.key = v.valueKey;
-          btn.dataset.matchId = v.matchId;
-          btn.innerHTML = `<div class="text-xl md:text-2xl font-extrabold text-emerald-800 break-all">${v.valueDisplay}</div><div class="text-xs text-emerald-600 mt-2 font-bold">утгыг сонго</div>`;
-          if (matchedIds.has(v.matchId)) {
-            btn.classList.add("card-correct", "card-done");
-            btn.disabled = true;
-          }
-          btn.addEventListener("click", () => onSelectValue(v, btn));
-          els.valueGrid.appendChild(btn);
-        });
-      }
-
-      function onSelectPower(p, btn) {
-        console.log("[MB] SELECT POWER", p.id, { lockMatch });
-        if (lockMatch || matchedIds.has(p.id)) return;
-        selectedPower = p;
-        els.powerGrid.querySelectorAll("button").forEach((b) => b.classList.remove("selected"));
-        btn.classList.add("selected");
-        els.matchFeedback.textContent = "Одоо утгын картаа сонго.";
-        els.matchFeedback.className = "mb-3 min-h-[28px] text-center font-extrabold text-lg text-violet-700";
-      }
-
-      function onSelectValue(v, btn) {
-        if (lockMatch || !selectedPower || matchedIds.has(v.matchId)) return;
-        lockMatch = true;
-        btn.classList.add("selected");
-
-        const powerBtn = els.powerGrid.querySelector(`[data-id="${selectedPower.id}"]`);
-        const correct = selectedPower.valueKey === v.valueKey;
-
-        matchAnswers.push({
-          exponent: selectedPower.exponent,
-          chosen: v.valueKey,
-          correct: selectedPower.valueKey,
-          isCorrect: correct,
-        });
-
-        if (correct) {
-          matchCorrect += 1;
-          matchedIds.add(selectedPower.id);
-          powerBtn.classList.add("card-correct", "card-done", "pop");
-          btn.classList.add("card-correct", "card-done", "pop");
-          powerBtn.disabled = true;
-          btn.disabled = true;
-          els.matchFeedback.textContent = "Зөв! 🎉";
-          els.matchFeedback.className = "mb-3 min-h-[28px] text-center font-extrabold text-lg text-emerald-600";
-          selectedPower = null;
-          lockMatch = false;
-          updateMatchScore();
-          saveProgress();
-          pushLiveScore(1, matchLiveScore());
-          if (matchedIds.size >= 10) finishMatch();
-        } else {
-          /* Буруу хос → −1 оноо, тоглоом үргэлжлэх ба бүрэн дуусна */
-          matchWrong += 1;
-          powerBtn.classList.add("card-wrong");
-          btn.classList.add("card-wrong");
-          els.matchFeedback.textContent = "−1 оноо! Дахин оролдоорой.";
-          els.matchFeedback.className = "mb-3 min-h-[28px] text-center font-extrabold text-lg text-rose-600";
-          updateMatchScore();
-          saveProgress();
-          pushLiveScore(1, matchLiveScore());
-          setTimeout(() => {
-            powerBtn.classList.remove("card-wrong", "selected");
-            btn.classList.remove("card-wrong", "selected");
-            selectedPower = null;
-            lockMatch = false;
-            els.matchFeedback.textContent = "";
-          }, 700);
-        }
-      }
-
-      async function finishMatch() {
-        const correct = matchAnswers.filter((a) => a.isCorrect).length;
-        const wrong = matchAnswers.filter((a) => a.isCorrect === false).length;
-        els.matchScoreLine.textContent =
-          `Зөв хос: ${correct} / 10 · Буруу: ${wrong} · Оноо: ${Math.max(0, correct - wrong)}`;
-        els.matchDone.classList.remove("hidden");
-        const ok = await submitStage(1, matchAnswers);
-        if (!ok) {
-          els.matchFeedback.textContent =
-            "Хариулт илгээхэд алдаа гарлаа. «Дараагийн үе шат» товчийг дахин дарна уу.";
-          els.matchFeedback.className =
-            "mb-3 min-h-[28px] text-center font-extrabold text-lg text-rose-600";
-        }
-      }
-
-      els.helpBtn.addEventListener("click", () => {
-        els.helpBox.classList.toggle("hidden");
-      });
-
-      els.matchContinueBtn.addEventListener("click", async () => {
-        if (!submittedStages.has(1)) {
-          const ok = await submitStage(1, matchAnswers);
-          if (!ok) {
-            els.matchFeedback.textContent =
-              "Хариулт илгээхэд алдаа гарлаа. Дахин дарна уу.";
-            els.matchFeedback.className =
-              "mb-3 min-h-[28px] text-center font-extrabold text-lg text-rose-600";
-            return;
-          }
-        }
-        els.matchFeedback.textContent = "Үе шатыг дуусгалаа. Дараагийн үе шат эхэлж байна…";
-        startStage(2);
-      });
-
-      /* ---------- Stages 2–3: Quiz + 10s timer ---------- */
-      async function loadQuiz(n) {
-        clearTimer();
-        const res = await fetch(`/api/questions/${n}`);
-        const data = await res.json();
-        questions = data.questions || [];
-        currentIndex = 0;
-        selected = false;
-        stageAnswers = [];
-        timerSec = data.timerSec || 10;
-        quizInstruction = data.instruction || "";
-        els.stageHeader.textContent = `Үе ${n}: ${data.title || ""}`;
-        els.stageSub.textContent = data.subtitle || "";
+      /* Үе 2–3: асуултаа үргэлжлүүлнэ */
+      if (stage >= 2 && saved.quiz && (saved.quiz.questions || []).length) {
+        questions = saved.quiz.questions;
+        currentIndex = Math.min(saved.quiz.currentIndex || 0, Math.max(0, questions.length - 1));
+        stageAnswers = saved.quiz.answers || [];
+        timerSec = saved.quiz.timerSec || 10;
+        quizInstruction = saved.quiz.instruction || "";
+        hideAll();
+        els.quizView.classList.remove("hidden");
+        els.stageHeader.textContent = saved.quiz.header || `Үе ${stage}`;
+        els.stageSub.textContent = saved.quiz.sub || "";
         if (quizInstruction) {
           els.quizInstruction.textContent = quizInstruction;
           els.quizInstruction.classList.remove("hidden");
@@ -641,169 +529,387 @@
           els.quizInstruction.classList.add("hidden");
         }
         renderQuizQuestion();
+        return;
       }
 
-      function clearTimer() {
-        if (timerId) {
-          clearInterval(timerId);
-          timerId = null;
-        }
-      }
+      await startStage(stage);
+    }
 
-      function startTimer() {
-        clearTimer();
-        timerLeft = timerSec;
-        els.timerLabel.textContent = String(timerLeft);
-        els.timerBar.style.width = "100%";
-        timerId = setInterval(() => {
-          timerLeft -= 1;
-          els.timerLabel.textContent = String(Math.max(0, timerLeft));
-          els.timerBar.style.width = `${Math.max(0, (timerLeft / timerSec) * 100)}%`;
-          if (timerLeft <= 0) {
-            clearTimer();
-            onTimeout();
+    /* Хариултыг серверт илгээнэ (409 = аль хэдийн илгээсэн) */
+    async function submitStage(stageNum, answers) {
+      clearTimer();
+      if (submittedStages.has(stageNum)) return true;
+      if (!classCode || !studentName) return false;
+      try {
+        const res = await fetch("/api/student/submit", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ code: classCode, name: studentName, stage: stageNum, answers }),
+        });
+        const data = await res.json().catch(() => ({}));
+
+        if (res.ok || res.status === 409) {
+          submittedStages.add(stageNum);
+          if (data.scores) {
+            stageScores[1] = data.scores.stage1 || 0;
+            stageScores[2] = data.scores.stage2 || 0;
+            stageScores[3] = data.scores.stage3 || 0;
+            totalScore = data.scores.total || 0;
           }
-        }, 1000);
-      }
-
-      function answersEqual(a, b) {
-        const na = Number(String(a).replace(/,/g, ""));
-        const nb = Number(String(b).replace(/,/g, ""));
-        if (Number.isFinite(na) && Number.isFinite(nb)) {
-          return Math.abs(na - nb) < 1e-9;
+          clearProgress();
+          return true;
         }
-        return String(a) === String(b);
+        return false;
+      } catch (_) {
+        return false;
       }
+    }
 
-      function renderQuizQuestion() {
-        const q = questions[currentIndex];
-        if (!q) {
-          finishQuiz();
-          return;
-        }
-
-        selected = false;
-        els.progress.textContent = `${currentIndex + 1} / ${questions.length}`;
-        els.questionBox.innerHTML = q.promptHtml || q.prompt;
-        els.choices.innerHTML = "";
-        setStatus(`□-д тохирох тоог сонго! (${timerSec} сек)`, "info");
-
-        (q.choices || []).forEach((choice) => {
-          const value = typeof choice === "object" ? choice.value : choice;
-          const display = typeof choice === "object" ? choice.display : choice;
-          const btn = document.createElement("button");
-          btn.type = "button";
-          btn.className =
-            "choice-btn border-2 border-slate-200 rounded-2xl py-4 px-3 font-extrabold bg-white active:scale-[0.98] hover:border-violet-400 hover:bg-violet-50 transition";
-          btn.textContent = display;
-          btn.dataset.value = value;
-          btn.addEventListener("click", () => onQuizPick(value, q, btn));
-          els.choices.appendChild(btn);
-        });
-
-        startTimer();
-      }
-
-      function onTimeout() {
-        if (selected) return;
-        selected = true;
-        const q = questions[currentIndex];
-        stageAnswers.push({
-          prompt: q.prompt,
-          chosen: null,
-          correct: q.answer,
-          isCorrect: false,
-          timedOut: true,
-        });
-        setStatus(`Цаг дууслаа. Зөв хариулт: ${q.answerDisplay || q.answer}`, "bad");
-        highlightCorrect(q);
-        saveProgress();
-        pushLiveScore(stage, stageAnswers.filter((a) => a.isCorrect).length);
-        setTimeout(() => {
-          currentIndex += 1;
-          saveProgress();
-          renderQuizQuestion();
-        }, 1200);
-      }
-
-      function highlightCorrect(q) {
-        els.choices.querySelectorAll("button").forEach((el) => {
-          el.disabled = true;
-          if (answersEqual(el.dataset.value, q.answer) || answersEqual(el.textContent, q.answerDisplay || q.answer)) {
-            el.classList.add("border-emerald-500", "bg-emerald-500", "text-white");
-          }
-        });
-      }
-
-      function onQuizPick(value, q, btn) {
-        if (selected) return;
-        selected = true;
-        clearTimer();
-
-        const correct = answersEqual(value, q.answer);
-        stageAnswers.push({
-          prompt: q.prompt,
-          chosen: value,
-          correct: q.answer,
-          isCorrect: correct,
-        });
-
-        els.choices.querySelectorAll("button").forEach((el) => (el.disabled = true));
-        highlightCorrect(q);
-
-        if (!correct) {
-          btn.classList.add("border-rose-500", "bg-rose-500", "text-white");
-          setStatus(`Буруу. Зөв хариулт: ${q.answerDisplay || q.answer}`, "bad");
-        } else {
-          btn.classList.add("border-emerald-500", "bg-emerald-500", "text-white");
-          setStatus("Зөв! 🎉", "ok");
-        }
-
-        saveProgress();
-        pushLiveScore(stage, stageAnswers.filter((a) => a.isCorrect).length);
-
-        setTimeout(() => {
-          currentIndex += 1;
-          saveProgress();
-          renderQuizQuestion();
-        }, 1100);
-      }
-
-      async function finishQuiz(attempt = 0) {
-        clearTimer();
-        const ok = await submitStage(stage, stageAnswers);
-        if (!ok) {
-          if (attempt < 4) {
-            setStatus("Хариулт илгээхэд алдаа гарлаа. Дахин оролдоно…", "bad");
-            await new Promise((resolve) => setTimeout(resolve, 2000));
-            return finishQuiz(attempt + 1);
-          }
-          setStatus("Холболт тасарлаа. Хуудсыг дахин ачаалвал үргэлжлүүлнэ.", "bad");
-          saveProgress();
-          return;
-        }
-        clearProgress();
-        if (stage < 3) {
-          setStatus("Үе шатыг дуусгалаа. Дараагийн үе шат эхэлж байна…");
-          setTimeout(() => startStage(stage + 1), 1000);
-        } else {
-          showFinal();
-        }
-      }
-
-      function showFinal() {
-        clearProgress();
-        hideAll();
-        els.doneView.classList.remove("hidden");
-        els.scoreLine.textContent = `Нийт оноо: ${totalScore} (Ү1: ${stageScores[1]}, Ү2: ${stageScores[2]}, Ү3: ${stageScores[3]})`;
-      }
-
-      if (!classCode || !studentName) {
-        els.lobbyMsg.textContent = "Ангины код болон нэрээ оруулаад дахин орно уу.";
+    async function startStage(n) {
+      console.log("[MB] START", n);
+      stage = n;
+      clearProgress();
+      hideAll();
+      if (n === 1) {
+        els.matchView.classList.remove("hidden");
+        await loadMatch();
+      } else if (n <= 3) {
+        els.quizView.classList.remove("hidden");
+        await loadQuiz(n);
       } else {
-        checkGameState();
-        setInterval(checkGameState, 2000);
+        showFinal();
       }
-    </script>
-  </body>
+    }
+
+    /* ---------- Stage 1: Match ---------- */
+    async function loadMatch() {
+      const res = await fetch("/api/questions/1");
+      const data = await res.json();
+      matchData = data.match;
+      selectedPower = null;
+      matchedIds = new Set();
+      matchAnswers = [];
+      lockMatch = false;
+      matchCorrect = 0;
+      matchWrong = 0;
+      updateMatchScore();
+      els.matchDone.classList.add("hidden");
+      els.matchFeedback.textContent = "";
+      renderMatch();
+    }
+
+    function renderMatch() {
+      els.powerGrid.innerHTML = "";
+      els.valueGrid.innerHTML = "";
+
+      matchData.exponents.forEach((p) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "power-card p-1 text-center min-h-[10px]";
+        btn.dataset.id = p.id;
+        btn.innerHTML = `<div class="text-xl md:text-2xl font-extrabold text-violet-800">${p.powerHtml}</div><div class="text-xs text-violet-500 mt-2 font-bold">зэргийг сонго</div>`;
+        if (matchedIds.has(p.id)) {
+          btn.classList.add("card-correct", "card-done");
+          btn.disabled = true;
+        }
+        btn.addEventListener("click", () => onSelectPower(p, btn));
+        els.powerGrid.appendChild(btn);
+      });
+
+      matchData.values.forEach((v) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "value-card p-1 text-center min-h-[10px]";
+        btn.dataset.key = v.valueKey;
+        btn.dataset.matchId = v.matchId;
+        btn.innerHTML = `<div class="text-xl md:text-2xl font-extrabold text-emerald-800 break-all">${v.valueDisplay}</div><div class="text-xs text-emerald-600 mt-2 font-bold">утгыг сонго</div>`;
+        if (matchedIds.has(v.matchId)) {
+          btn.classList.add("card-correct", "card-done");
+          btn.disabled = true;
+        }
+        btn.addEventListener("click", () => onSelectValue(v, btn));
+        els.valueGrid.appendChild(btn);
+      });
+    }
+
+    function onSelectPower(p, btn) {
+      console.log("[MB] SELECT POWER", p.id, { lockMatch });
+      if (lockMatch || matchedIds.has(p.id)) return;
+      selectedPower = p;
+      els.powerGrid.querySelectorAll("button").forEach((b) => b.classList.remove("selected"));
+      btn.classList.add("selected");
+      els.matchFeedback.textContent = "Одоо утгын картаа сонго.";
+      els.matchFeedback.className = "mb-3 min-h-[28px] text-center font-extrabold text-lg text-violet-700";
+    }
+
+    function onSelectValue(v, btn) {
+      if (lockMatch || !selectedPower || matchedIds.has(v.matchId)) return;
+      lockMatch = true;
+      btn.classList.add("selected");
+
+      const powerBtn = els.powerGrid.querySelector(`[data-id="${selectedPower.id}"]`);
+      const correct = selectedPower.valueKey === v.valueKey;
+
+      matchAnswers.push({
+        exponent: selectedPower.exponent,
+        chosen: v.valueKey,
+        correct: selectedPower.valueKey,
+        isCorrect: correct,
+      });
+
+      if (correct) {
+        matchCorrect += 1;
+        matchedIds.add(selectedPower.id);
+        powerBtn.classList.add("card-correct", "card-done", "pop");
+        btn.classList.add("card-correct", "card-done", "pop");
+        powerBtn.disabled = true;
+        btn.disabled = true;
+        els.matchFeedback.textContent = "Зөв! 🎉";
+        els.matchFeedback.className = "mb-3 min-h-[28px] text-center font-extrabold text-lg text-emerald-600";
+        selectedPower = null;
+        lockMatch = false;
+        updateMatchScore();
+        saveProgress();
+        pushLiveScore(1, matchLiveScore());
+        if (matchedIds.size >= 10) finishMatch();
+      } else {
+        /* Буруу хос → −1 оноо, тоглоом үргэлжлэх ба бүрэн дуусна */
+        matchWrong += 1;
+        powerBtn.classList.add("card-wrong");
+        btn.classList.add("card-wrong");
+        els.matchFeedback.textContent = "−1 оноо! Дахин оролдоорой.";
+        els.matchFeedback.className = "mb-3 min-h-[28px] text-center font-extrabold text-lg text-rose-600";
+        updateMatchScore();
+        saveProgress();
+        pushLiveScore(1, matchLiveScore());
+        setTimeout(() => {
+          powerBtn.classList.remove("card-wrong", "selected");
+          btn.classList.remove("card-wrong", "selected");
+          selectedPower = null;
+          lockMatch = false;
+          els.matchFeedback.textContent = "";
+        }, 700);
+      }
+    }
+
+    async function finishMatch() {
+      const correct = matchAnswers.filter((a) => a.isCorrect).length;
+      const wrong = matchAnswers.filter((a) => a.isCorrect === false).length;
+      els.matchScoreLine.textContent =
+        `Зөв хос: ${correct} / 10 · Буруу: ${wrong} · Оноо: ${Math.max(0, correct - wrong)}`;
+      els.matchDone.classList.remove("hidden");
+      const ok = await submitStage(1, matchAnswers);
+      if (!ok) {
+        els.matchFeedback.textContent =
+          "Хариулт илгээхэд алдаа гарлаа. «Дараагийн үе шат» товчийг дахин дарна уу.";
+        els.matchFeedback.className =
+          "mb-3 min-h-[28px] text-center font-extrabold text-lg text-rose-600";
+      }
+    }
+
+    els.helpBtn.addEventListener("click", () => {
+      els.helpBox.classList.toggle("hidden");
+    });
+
+    els.matchContinueBtn.addEventListener("click", async () => {
+      if (!submittedStages.has(1)) {
+        const ok = await submitStage(1, matchAnswers);
+        if (!ok) {
+          els.matchFeedback.textContent =
+            "Хариулт илгээхэд алдаа гарлаа. Дахин дарна уу.";
+          els.matchFeedback.className =
+            "mb-3 min-h-[28px] text-center font-extrabold text-lg text-rose-600";
+          return;
+        }
+      }
+      els.matchFeedback.textContent = "Үе шатыг дуусгалаа. Дараагийн үе шат эхэлж байна…";
+      startStage(2);
+    });
+
+    /* ---------- Stages 2–3: Quiz + 10s timer ---------- */
+    async function loadQuiz(n) {
+      clearTimer();
+      const res = await fetch(`/api/questions/${n}`);
+      const data = await res.json();
+      questions = data.questions || [];
+      currentIndex = 0;
+      selected = false;
+      stageAnswers = [];
+      timerSec = data.timerSec || 10;
+      quizInstruction = data.instruction || "";
+      els.stageHeader.textContent = `Үе ${n}: ${data.title || ""}`;
+      els.stageSub.textContent = data.subtitle || "";
+      if (quizInstruction) {
+        els.quizInstruction.textContent = quizInstruction;
+        els.quizInstruction.classList.remove("hidden");
+      } else {
+        els.quizInstruction.classList.add("hidden");
+      }
+      renderQuizQuestion();
+    }
+
+    function clearTimer() {
+      if (timerId) {
+        clearInterval(timerId);
+        timerId = null;
+      }
+    }
+
+    function startTimer() {
+      clearTimer();
+      timerLeft = timerSec;
+      els.timerLabel.textContent = String(timerLeft);
+      els.timerBar.style.width = "100%";
+      timerId = setInterval(() => {
+        timerLeft -= 1;
+        els.timerLabel.textContent = String(Math.max(0, timerLeft));
+        els.timerBar.style.width = `${Math.max(0, (timerLeft / timerSec) * 100)}%`;
+        if (timerLeft <= 0) {
+          clearTimer();
+          onTimeout();
+        }
+      }, 1000);
+    }
+
+    function answersEqual(a, b) {
+      const na = Number(String(a).replace(/,/g, ""));
+      const nb = Number(String(b).replace(/,/g, ""));
+      if (Number.isFinite(na) && Number.isFinite(nb)) {
+        return Math.abs(na - nb) < 1e-9;
+      }
+      return String(a) === String(b);
+    }
+
+    function renderQuizQuestion() {
+      const q = questions[currentIndex];
+      if (!q) {
+        finishQuiz();
+        return;
+      }
+
+      selected = false;
+      els.progress.textContent = `${currentIndex + 1} / ${questions.length}`;
+      els.questionBox.innerHTML = q.promptHtml || q.prompt;
+      els.choices.innerHTML = "";
+      setStatus(`□-д тохирох тоог сонго! (${timerSec} сек)`, "info");
+
+      (q.choices || []).forEach((choice) => {
+        const value = typeof choice === "object" ? choice.value : choice;
+        const display = typeof choice === "object" ? choice.display : choice;
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className =
+          "choice-btn border-2 border-slate-200 rounded-2xl py-4 px-3 font-extrabold bg-white active:scale-[0.98] hover:border-violet-400 hover:bg-violet-50 transition";
+        btn.textContent = display;
+        btn.dataset.value = value;
+        btn.addEventListener("click", () => onQuizPick(value, q, btn));
+        els.choices.appendChild(btn);
+      });
+
+      startTimer();
+    }
+
+    function onTimeout() {
+      if (selected) return;
+      selected = true;
+      const q = questions[currentIndex];
+      stageAnswers.push({
+        prompt: q.prompt,
+        chosen: null,
+        correct: q.answer,
+        isCorrect: false,
+        timedOut: true,
+      });
+      setStatus(`Цаг дууслаа. Зөв хариулт: ${q.answerDisplay || q.answer}`, "bad");
+      highlightCorrect(q);
+      saveProgress();
+      pushLiveScore(stage, stageAnswers.filter((a) => a.isCorrect).length);
+      setTimeout(() => {
+        currentIndex += 1;
+        saveProgress();
+        renderQuizQuestion();
+      }, 1200);
+    }
+
+    function highlightCorrect(q) {
+      els.choices.querySelectorAll("button").forEach((el) => {
+        el.disabled = true;
+        if (answersEqual(el.dataset.value, q.answer) || answersEqual(el.textContent, q.answerDisplay || q.answer)) {
+          el.classList.add("border-emerald-500", "bg-emerald-500", "text-white");
+        }
+      });
+    }
+
+    function onQuizPick(value, q, btn) {
+      if (selected) return;
+      selected = true;
+      clearTimer();
+
+      const correct = answersEqual(value, q.answer);
+      stageAnswers.push({
+        prompt: q.prompt,
+        chosen: value,
+        correct: q.answer,
+        isCorrect: correct,
+      });
+
+      els.choices.querySelectorAll("button").forEach((el) => (el.disabled = true));
+      highlightCorrect(q);
+
+      if (!correct) {
+        btn.classList.add("border-rose-500", "bg-rose-500", "text-white");
+        setStatus(`Буруу. Зөв хариулт: ${q.answerDisplay || q.answer}`, "bad");
+      } else {
+        btn.classList.add("border-emerald-500", "bg-emerald-500", "text-white");
+        setStatus("Зөв! 🎉", "ok");
+      }
+
+      saveProgress();
+      pushLiveScore(stage, stageAnswers.filter((a) => a.isCorrect).length);
+
+      setTimeout(() => {
+        currentIndex += 1;
+        saveProgress();
+        renderQuizQuestion();
+      }, 1100);
+    }
+
+    async function finishQuiz(attempt = 0) {
+      clearTimer();
+      const ok = await submitStage(stage, stageAnswers);
+      if (!ok) {
+        if (attempt < 4) {
+          setStatus("Хариулт илгээхэд алдаа гарлаа. Дахин оролдоно…", "bad");
+          await new Promise((resolve) => setTimeout(resolve, 2000));
+          return finishQuiz(attempt + 1);
+        }
+        setStatus("Холболт тасарлаа. Хуудсыг дахин ачаалвал үргэлжлүүлнэ.", "bad");
+        saveProgress();
+        return;
+      }
+      clearProgress();
+      if (stage < 3) {
+        setStatus("Үе шатыг дуусгалаа. Дараагийн үе шат эхэлж байна…");
+        setTimeout(() => startStage(stage + 1), 1000);
+      } else {
+        showFinal();
+      }
+    }
+
+    function showFinal() {
+      clearProgress();
+      hideAll();
+      els.doneView.classList.remove("hidden");
+      els.scoreLine.textContent = `Нийт оноо: ${totalScore} (Ү1: ${stageScores[1]}, Ү2: ${stageScores[2]}, Ү3: ${stageScores[3]})`;
+    }
+
+    if (!classCode || !studentName) {
+      els.lobbyMsg.textContent = "Ангины код болон нэрээ оруулаад дахин орно уу.";
+    } else {
+      checkGameState();
+      setInterval(checkGameState, 2000);
+    }
+  </script>
+</body>
+
 </html>
